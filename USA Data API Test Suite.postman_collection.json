@@ -1,0 +1,975 @@
+{
+	"info": {
+		"_postman_id": "28b9b6aa-b531-464c-912c-6b3cdbae74a5",
+		"name": "USA Data API Test Suite",
+		"description": "Fetching different types of search in the USA Data API for example: Data by State,\n\nInsdustries, National Demographics.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "39996750"
+	},
+	"item": [
+		{
+			"name": "Fetching Data by State",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Validate population greater than 0\r",
+							"const jsonData = pm.response.json();\r",
+							"pm.test(\"Population is greater than zero\", function () {\r",
+							"    jsonData.data.forEach((item, index) => {\r",
+							"        pm.expect(item.Population, `Population at index ${index}`).to.be.above(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Test for counting states\r",
+							"pm.test(\"Count States\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var stateCount = jsonData.data.length;\r",
+							"    console.log(\"Number of States: \" + stateCount);\r",
+							"});\r",
+							"\r",
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    State: { type: \"string\" },\r",
+							"                    Population: { type: \"number\" }\r",
+							"                },\r",
+							"                required: [\"State\", \"Population\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?drilldowns=State&measures=Population&Year={{year}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"query": [
+						{
+							"key": "drilldowns",
+							"value": "State"
+						},
+						{
+							"key": "measures",
+							"value": "Population"
+						},
+						{
+							"key": "Year",
+							"value": "{{year}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching Industries",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Test for counting the industries\r",
+							"pm.test(\"Count Industries\", function () {\r",
+							"    var jsonData = pm.response.json();\r",
+							"    var industryCount = jsonData.data.length;\r",
+							"    console.log(\"Number of Industries: \" + industryCount);\r",
+							"});\r",
+							"\r",
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                required: [\"Industry Sector\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?measures=Total Population&Workforce Status=true&Record%20Count>=5&year={{year}}&drilldowns=Industry Sector",
+					"host": [
+						"{{base_url}}"
+					],
+					"query": [
+						{
+							"key": "measures",
+							"value": "Total Population"
+						},
+						{
+							"key": "Workforce Status",
+							"value": "true"
+						},
+						{
+							"key": "Record%20Count>",
+							"value": "5"
+						},
+						{
+							"key": "Industry Sector",
+							"value": "61-62",
+							"disabled": true
+						},
+						{
+							"key": "year",
+							"value": "{{year}}"
+						},
+						{
+							"key": "drilldowns",
+							"value": "Industry Sector"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching National Demographics",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Validate population greater than 0\r",
+							"const jsonData = pm.response.json();\r",
+							"const population = jsonData.data[0].Population;\r",
+							"pm.test(\"Population is greater than zero\", function () {\r",
+							"    pm.expect(population).to.be.above(0);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    Population: { type: \"number\" }\r",
+							"                },\r",
+							"                required: [\"Population\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?drilldowns=Nation&measures=Population&year={{year}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"query": [
+						{
+							"key": "drilldowns",
+							"value": "Nation"
+						},
+						{
+							"key": "measures",
+							"value": "Population"
+						},
+						{
+							"key": "year",
+							"value": "{{year}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching Education Level Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    Year: { type: \"string\" },\r",
+							"                    Group: { type: \"string\" },\r",
+							"                    Gender: { type: \"string\" }       \r",
+							"                },\r",
+							"                required: [\"Year\",\"Group\",\"Gender\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?Major Occupation Group={{mayor_occupation_group}}&Workforce Status=true&drilldowns=Year,Group,Gender&measures=Total Population,Total Population MOE Appx",
+					"host": [
+						"{{base_url}}"
+					],
+					"query": [
+						{
+							"key": "Major Occupation Group",
+							"value": "{{mayor_occupation_group}}"
+						},
+						{
+							"key": "Workforce Status",
+							"value": "true"
+						},
+						{
+							"key": "drilldowns",
+							"value": "Year,Group,Gender"
+						},
+						{
+							"key": "measures",
+							"value": "Total Population,Total Population MOE Appx"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching Enrollments By Race",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Validate Enrollments by race to be above than 0\r",
+							"const jsonData = pm.response.json();\r",
+							"pm.test(\"Enrollments by race are greater than zero\", function () {\r",
+							"    jsonData.data.forEach((item, index) => {\r",
+							"        pm.expect(item.Enrollment, `Enrollments at index ${index}`).to.be.above(0);\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    Year: { type: \"string\" },\r",
+							"                    Enrollment: { type: \"number\" },\r",
+							"                    University: { type: \"string\" }       \r",
+							"                },\r",
+							"                required: [\"IPEDS Race\",\"Enrollment\",\"University\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?year={{year}}&University=484613,484613:parents&measures=Enrollment&drilldowns=IPEDS%20Race",
+					"host": [
+						"{{base_url}}"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "{{year}}"
+						},
+						{
+							"key": "University",
+							"value": "484613,484613:parents"
+						},
+						{
+							"key": "measures",
+							"value": "Enrollment"
+						},
+						{
+							"key": "drilldowns",
+							"value": "IPEDS%20Race"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching Employment Over Time",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    Year: { type: \"string\" },\r",
+							"                    Gender: { type: \"string\" }       \r",
+							"                },\r",
+							"                required: [\"Year\",\"Gender\",\"Detailed Occupation\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}?measures=Total Population,Total Population MOE Appx&Workforce Status=true&Record Count>=5&drilldowns=Year,Gender,Detailed Occupation",
+					"host": [
+						"{{base_url}}"
+					],
+					"query": [
+						{
+							"key": "measures",
+							"value": "Total Population,Total Population MOE Appx"
+						},
+						{
+							"key": "Workforce Status",
+							"value": "true"
+						},
+						{
+							"key": "Nation",
+							"value": "01000US",
+							"disabled": true
+						},
+						{
+							"key": "Detailed Occupation",
+							"value": "412010",
+							"disabled": true
+						},
+						{
+							"key": "Record Count>",
+							"value": "5"
+						},
+						{
+							"key": "drilldowns",
+							"value": "Year,Gender,Detailed Occupation"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching Monthly Federal Spending",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Validate correct Product/Service in the entire request\r",
+							"const jsonData = pm.response.json();\r",
+							"pm.test(\"Correct Product/Service \", function () {\r",
+							"    jsonData.data.forEach((item, index) => {\r",
+							"        pm.expect(item.NAPCS, `Product/Service at index ${index}`).to.be.equals(\"Goods transportation services and related products\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 1 second\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"data\", \"source\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    Month: { type: \"string\" },\r",
+							"                    Year: { type: \"string\" },\r",
+							"                    NAPCS: { type: \"string\" }       \r",
+							"                },\r",
+							"                required: [\"Month\",\"Year\",\"NAPCS\"]\r",
+							"            }\r",
+							"        },\r",
+							"        source: { type: \"array\" }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://elpaso-app.datausa.io/api/data?NAPCS={{NAPCS}}&measures=Obligation%20Amount&drilldowns=Month",
+					"protocol": "http",
+					"host": [
+						"elpaso-app",
+						"datausa",
+						"io"
+					],
+					"path": [
+						"api",
+						"data"
+					],
+					"query": [
+						{
+							"key": "NAPCS",
+							"value": "{{NAPCS}}"
+						},
+						{
+							"key": "measures",
+							"value": "Obligation%20Amount"
+						},
+						{
+							"key": "drilldowns",
+							"value": "Month"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Fetching Senators Data",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Validate correct State by the requested ID in the entire request\r",
+							"const jsonData = pm.response.json();\r",
+							"pm.test(\"Correct State by ID\", function () {\r",
+							"    jsonData.data.forEach((item, index) => {\r",
+							"        pm.expect(item.State, `State at index ${index}`).to.be.equals(\"Texas\");\r",
+							"    });\r",
+							"});\r",
+							"\r",
+							"//Response Code Validation\r",
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"//Response Time Validation\r",
+							"pm.test(\"Response time is less than 2 seconds\", function () {\r",
+							"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//JSON Schema Validation to ensure the expected structure\r",
+							"const schema = {\r",
+							"    type: \"object\",\r",
+							"    required: [\"annotations\",\"columns\", \"data\"],\r",
+							"    properties: {\r",
+							"        data: {\r",
+							"            type: \"array\",\r",
+							"            items: {\r",
+							"                type: \"object\",\r",
+							"                properties: {\r",
+							"                    Candidate: { type: \"string\" },\r",
+							"                    Party: { type: \"string\" },\r",
+							"                    State:    { type: \"string\" }   \r",
+							"                },\r",
+							"                required: [\"Total Votes\",\"Candidate\",\"Party\",\"State\"]\r",
+							"            }\r",
+							"        }\r",
+							"    }\r",
+							"};\r",
+							"\r",
+							"pm.test(\"Schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(schema);\r",
+							"});\r",
+							"\r",
+							"//Handle Invalid Parameters\r",
+							"pm.test(\"Handles invalid state gracefully\", function () {\r",
+							"    const statusCode = pm.response.code;\r",
+							"    pm.expect(statusCode).to.be.oneOf([400, 404]);\r",
+							"    const errorMessage = pm.response.json().message;\r",
+							"    pm.expect(errorMessage).to.include(\"Invalid\");\r",
+							"});\r",
+							"\r",
+							"//Authentication Test \r",
+							"pm.environment.set(\"auth_token\", \"my_token\");\r",
+							"pm.test(\"Token is valid\", function () {\r",
+							"    pm.expect(pm.response.status).to.not.equal(401);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"//Validate Error Responses\r",
+							"pm.test(\"Handles server errors correctly\", function () {\r",
+							"    const statusCode = pm.response.status;\r",
+							"    pm.expect(statusCode).to.not.equal(500);\r",
+							"});\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://elpaso-api-ts.datausa.io/tesseract/data?Special=0&cube=Data_USA_Senate_election&drilldowns=State,Party,Candidate,Special&measures=Candidate+Votes,Total+Votes&State={{State_id}}",
+					"protocol": "https",
+					"host": [
+						"elpaso-api-ts",
+						"datausa",
+						"io"
+					],
+					"path": [
+						"tesseract",
+						"data"
+					],
+					"query": [
+						{
+							"key": "Special",
+							"value": "0"
+						},
+						{
+							"key": "cube",
+							"value": "Data_USA_Senate_election"
+						},
+						{
+							"key": "drilldowns",
+							"value": "State,Party,Candidate,Special"
+						},
+						{
+							"key": "measures",
+							"value": "Candidate+Votes,Total+Votes"
+						},
+						{
+							"key": "State",
+							"value": "{{State_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://datausa.io/api/data",
+			"type": "string"
+		},
+		{
+			"key": "year",
+			"value": "latest",
+			"type": "string"
+		},
+		{
+			"key": "mayor_occupation_group",
+			"value": "110000-290000",
+			"type": "string"
+		},
+		{
+			"key": "NAPCS",
+			"value": "64",
+			"type": "string"
+		},
+		{
+			"key": "State_id",
+			"value": "04000US48",
+			"type": "string"
+		}
+	]
+}
