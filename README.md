@@ -1,6 +1,9 @@
+POSTMAN test suite file name: "USA Data API Test Suite.postman_collection.json"
+
+Cypress PROYECT folder name: "Cypress_NBA_test" 
 SETUP instructions:
     -Before running the cypress proyect install NODEJS
-    -Open a terminal in the proyect "CYPRESSNBATEST" folder and then run node_modules/.bin/cypress open
+    -Open a terminal in the proyect "Cypress_NBA_test" folder and then run node_modules/.bin/cypress open
      to start the proyect
 
 Running tests in the e2e folder: 
